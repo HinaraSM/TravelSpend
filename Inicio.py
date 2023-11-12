@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 
 # Crear un DataFrame para almacenar los gastos
 df = pd.DataFrame(columns=['Categoría', 'Monto', 'Fecha'])
@@ -34,13 +34,13 @@ gasto_diario = total_gasto / dias_de_viaje
 st.write(f"Gasto Promedio Diario: ${gasto_diario:.2f}")
 
 # Gráfico de barras de gastos por categoría
-"""st.header("Gráfico de Gastos por Categoría")
+st.header("Gráfico de Gastos por Categoría")
 gastos_por_categoria = df.groupby('Categoría')['Monto'].sum()
 fig, ax = plt.subplots()
 ax.bar(gastos_por_categoria.index, gastos_por_categoria)
 ax.set_xlabel("Categoría")
 ax.set_ylabel("Monto")
-st.pyplot(fig)"""
+st.pyplot(fig)
 
 # Exportar los datos
 st.header("Exportar Datos")
