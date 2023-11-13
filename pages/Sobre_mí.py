@@ -4,7 +4,7 @@ from skimage import io, exposure, filters
 from skimage.util import img_as_ubyte
 
 # Cargar tu imagen desde el sistema de archivos
-image_path = "images/hinara.jpg"  # Reemplaza con la ruta a tu imagen
+image_path = "images/hinara.jpg"
 image = io.imread(image_path)
 
 # Aplicar el filtro de aumento de nitidez
@@ -29,6 +29,7 @@ st.sidebar.image("images/fondo2.png", width=285)
 st.image(sharpened_image, caption="Imagen con realce de bordes de mí",
          width=400)
 
+# Texto acerca de mí y de la app
 st.write("¡Bienvenidos a mi aplicación de gastos de viaje! Soy una entusiasta "
          "de los viajes y amante de la organización, y esta aplicación es el "
          "resultado de mi pasión por ambas cosas. Aquí te cuento un poco "
