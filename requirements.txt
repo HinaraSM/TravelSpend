@@ -1,4 +1,5 @@
 streamlit==1.28.1
-scikit-image==0.18.3
+scikit-image==0.22.0
 numpy==1.26.1
-matplotlib==3.5.1
+matplotlib==3.8.1
+pandas==2.1.3
