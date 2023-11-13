@@ -1,3 +1,4 @@
+# Importar librerías y módulos necesarios
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -16,17 +17,20 @@ st.sidebar.image("images/fondo2.png", width=285)
 
 # Variable global para almacenar el DataFrame
 if 'df' not in st.session_state:
-    st.session_state.df = pd.DataFrame(columns=['Categoria', 'Monto', 'Fecha'])
+    st.session_state.df = pd.DataFrame(columns=['Categoria', 'Monto',
+                                                'Fecha'])
 
 # Título de la aplicación
-st.title("Calculadora de Gastos de Viaje")
+st.title("Calculadora de Gastos de Viaje TravelSpend")
 
 # Ingreso de gastos
 st.header("Ingresar un nuevo gasto")
-# Directorio local donde se almacenan las imágenes (ajusta la ruta según tu proyecto)
+# Directorio local donde se almacenan las imágenes (ajusta la ruta según tu
+# proyecto)
 image_directory = "images/"
 
-categoria = st.selectbox("Categoría", ["Comida", "Alojamiento", "Transporte", "Actividades", "Otros"])
+categoria = st.selectbox("Categoría", ["Comida", "Alojamiento", "Transporte",
+                                       "Actividades", "Otros"])
 imagen_categoria = f"{image_directory}{categoria.lower()}.png"
 
 # Cargar la imagen utilizando scikit-image
@@ -41,7 +45,9 @@ fecha = fecha.strftime('%d/%m')
 
 if st.button("Agregar Gasto"):
     new_row = {'Categoria': categoria, 'Monto': monto, 'Fecha': fecha}
-    st.session_state.df = pd.concat([st.session_state.df, pd.DataFrame(new_row, index=[0])], ignore_index=True)
+    st.session_state.df = pd.concat([st.session_state.df,
+                                     pd.DataFrame(new_row, index=[0])],
+                                    ignore_index=True)
 
     st.success("Gasto agregado con éxito")
 
@@ -61,20 +67,22 @@ if not st.session_state.df.empty:
     st.write(f"Gasto Mínimo: ${min_gasto:.2f}")
 
     # Calcular la categoría en la que más y menos se gastó dinero
-    gasto_por_categoria = st.session_state.df.groupby('Categoria')['Monto'].sum()
+    gasto_por_categoria = st.session_state.df.groupby('Categoria')[
+        'Monto'].sum()
     categoria_max_gasto = gasto_por_categoria.idxmax()
     max_gasto = gasto_por_categoria.max()
     categoria_min_gasto = gasto_por_categoria.idxmin()
     min_gasto = gasto_por_categoria.min()
 
-    st.write(f"Categoría en la que se gastó más dinero: {categoria_max_gasto} (${max_gasto:.2f})")
-    st.write(f"Categoría en la que se gastó menos dinero: {categoria_min_gasto} (${min_gasto:.2f})")
+    st.write(f"Categoría en la que se gastó más dinero: {categoria_max_gasto}"
+             f" (${max_gasto:.2f})")
+    st.write(f"Categoría en la que se gastó menos dinero: "
+             f"{categoria_min_gasto} (${min_gasto:.2f}")
 
     # Gráfico de barras de gastos por categoría utilizando Matplotlib
     st.header("Gráfico de Gastos por Categoría")
-    gastos_por_categoria = st.session_state.df.groupby('Categoria')['Monto'].sum()
     fig, ax = plt.subplots()
-    ax.bar(gastos_por_categoria.index, gastos_por_categoria)
+    ax.bar(gasto_por_categoria.index, gasto_por_categoria)
     ax.set_xlabel("Categoría")
     ax.set_ylabel("Monto")
     # Mostrar el gráfico en Streamlit
@@ -96,8 +104,12 @@ else:
 # Exportar los datos
 st.header("Exportar Datos")
 
+
 # Define una función para descargar el archivo CSV
 def download_csv():
+    """
+    Descarga el DataFrame en formato CSV como un archivo descargable.
+    """
     csv = st.session_state.df.to_csv(index=False).encode('utf-8')
     st.download_button(
         label="Descargar CSV",
@@ -111,12 +123,8 @@ def download_csv():
 download_csv()
 
 # Limpiar los datos
-st.write("Presionar dos veces el botón de 'Limpiar Datos' si está seguro de querer borrarlos")
+st.write("Presionar dos veces el botón de 'Limpiar Datos' si está seguro de "
+         "querer borrarlos")
 if st.button("Limpiar Datos"):
-    st.session_state.df = pd.DataFrame(columns=['Categoria', 'Monto', 'Fecha'])
-
-
-
-
-
-
+    st.session_state.df = pd.DataFrame(columns=['Categoria', 'Monto',
+                                                'Fecha'])
