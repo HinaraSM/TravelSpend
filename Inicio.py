@@ -2,54 +2,121 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+from skimage import io
 
-# Crear un DataFrame para almacenar los gastos
-df = pd.DataFrame(columns=['Categoría', 'Monto', 'Fecha'])
+# Personalizar el menú desplegable con el logo
+st.set_page_config(
+    page_title="TravelSpend",
+    page_icon="images/logo.png",  # Icono en la pestaña del navegador
+)
+
+# Añadir el logo en la barra lateral
+st.sidebar.title("TravelSpend")
+st.sidebar.image("images/fondo2.png", width=285)
+
+# Variable global para almacenar el DataFrame
+if 'df' not in st.session_state:
+    st.session_state.df = pd.DataFrame(columns=['Categoria', 'Monto', 'Fecha'])
 
 # Título de la aplicación
 st.title("Calculadora de Gastos de Viaje")
 
 # Ingreso de gastos
 st.header("Ingresar un nuevo gasto")
+# Directorio local donde se almacenan las imágenes (ajusta la ruta según tu proyecto)
+image_directory = "images/"
+
 categoria = st.selectbox("Categoría", ["Comida", "Alojamiento", "Transporte", "Actividades", "Otros"])
+imagen_categoria = f"{image_directory}{categoria.lower()}.png"
+
+# Cargar la imagen utilizando scikit-image
+imagen = io.imread(imagen_categoria)
+
+# Mostrar la imagen redimensionada
+st.image(imagen, caption=categoria, width=150)
+
 monto = st.number_input("Monto", value=0.0)
 fecha = st.date_input("Fecha")
+fecha = fecha.strftime('%d/%m')
 
 if st.button("Agregar Gasto"):
-    df = df.append({'Categoría': categoria, 'Monto': monto, 'Fecha': fecha}, ignore_index=True)
+    new_row = {'Categoria': categoria, 'Monto': monto, 'Fecha': fecha}
+    st.session_state.df = pd.concat([st.session_state.df, pd.DataFrame(new_row, index=[0])], ignore_index=True)
+
     st.success("Gasto agregado con éxito")
 
 # Resumen de Gastos
 st.header("Resumen de Gastos")
-st.write("Gastos registrados:")
-st.write(df)
+if not st.session_state.df.empty:
+    st.write("Gastos registrados:")
+    st.write(st.session_state.df)
+    # Calcular el gasto total
+    total_gasto = np.sum(st.session_state.df['Monto'])
+    st.write(f"Gasto Total: ${total_gasto:.2f}")
 
-# Calcular el gasto total
-total_gasto = df['Monto'].sum()
-st.write(f"Gasto Total: ${total_gasto:.2f}")
+    # Calcular el máximo y mínimo de los gastos
+    max_gasto = np.max(st.session_state.df['Monto'])
+    min_gasto = np.min(st.session_state.df['Monto'])
+    st.write(f"Gasto Máximo: ${max_gasto:.2f}")
+    st.write(f"Gasto Mínimo: ${min_gasto:.2f}")
 
-# Calcular el promedio de gastos diarios
-dias_de_viaje = (df['Fecha'].max() - df['Fecha'].min()).days + 1
-gasto_diario = total_gasto / dias_de_viaje
-st.write(f"Gasto Promedio Diario: ${gasto_diario:.2f}")
+    # Calcular la categoría en la que más y menos se gastó dinero
+    gasto_por_categoria = st.session_state.df.groupby('Categoria')['Monto'].sum()
+    categoria_max_gasto = gasto_por_categoria.idxmax()
+    max_gasto = gasto_por_categoria.max()
+    categoria_min_gasto = gasto_por_categoria.idxmin()
+    min_gasto = gasto_por_categoria.min()
 
-# Gráfico de barras de gastos por categoría
-st.header("Gráfico de Gastos por Categoría")
-gastos_por_categoria = df.groupby('Categoría')['Monto'].sum()
-fig, ax = plt.subplots()
-ax.bar(gastos_por_categoria.index, gastos_por_categoria)
-ax.set_xlabel("Categoría")
-ax.set_ylabel("Monto")
-st.pyplot(fig)
+    st.write(f"Categoría en la que se gastó más dinero: {categoria_max_gasto} (${max_gasto:.2f})")
+    st.write(f"Categoría en la que se gastó menos dinero: {categoria_min_gasto} (${min_gasto:.2f})")
+
+    # Gráfico de barras de gastos por categoría utilizando Matplotlib
+    st.header("Gráfico de Gastos por Categoría")
+    gastos_por_categoria = st.session_state.df.groupby('Categoria')['Monto'].sum()
+    fig, ax = plt.subplots()
+    ax.bar(gastos_por_categoria.index, gastos_por_categoria)
+    ax.set_xlabel("Categoría")
+    ax.set_ylabel("Monto")
+    # Mostrar el gráfico en Streamlit
+    st.pyplot(fig)
+
+    # Mostrar gasto por día en un gráfico de barras
+    st.header("Gasto por Día")
+    gasto_por_dia = st.session_state.df.groupby('Fecha')['Monto'].sum()
+    fig, ax = plt.subplots()
+    ax.bar(gasto_por_dia.index, gasto_por_dia.values)
+    ax.set_xlabel("Fecha (día/mes)")
+    ax.set_ylabel("Gasto")
+    plt.xticks(rotation=45)
+    # Mostrar el gráfico en Streamlit
+    st.pyplot(fig)
+else:
+    st.warning("No hay datos de gastos disponibles.")
 
 # Exportar los datos
 st.header("Exportar Datos")
-if st.button("Exportar a CSV"):
-    df.to_csv("gastos_de_viaje.csv", index=False)
-    st.success("Datos exportados a 'gastos_de_viaje.csv'")
+
+# Define una función para descargar el archivo CSV
+def download_csv():
+    csv = st.session_state.df.to_csv(index=False).encode('utf-8')
+    st.download_button(
+        label="Descargar CSV",
+        data=csv,
+        file_name="gastos_de_viaje.csv",
+        key="download_button"
+    )
+
+
+# Muestra el botón de descarga
+download_csv()
 
 # Limpiar los datos
+st.write("Presionar dos veces el botón de 'Limpiar Datos' si está seguro de querer borrarlos")
 if st.button("Limpiar Datos"):
-    df = pd.DataFrame(columns=['Categoría', 'Monto', 'Fecha'])
-    st.success("Datos limpiados")
+    st.session_state.df = pd.DataFrame(columns=['Categoria', 'Monto', 'Fecha'])
+
+
+
+
+
 
