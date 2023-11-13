@@ -8,7 +8,7 @@ from skimage import io
 # Personalizar el menú desplegable con el logo
 st.set_page_config(
     page_title="TravelSpend",
-    page_icon="images/logo.png",  # Icono en la pestaña del navegador
+    page_icon="images/logo.png",
 )
 
 # Añadir el logo en la barra lateral
