@@ -25,8 +25,7 @@ st.title("Calculadora de Gastos de Viaje TravelSpend")
 
 # Ingreso de gastos
 st.header("Ingresar un nuevo gasto")
-# Directorio local donde se almacenan las imágenes (ajusta la ruta según tu
-# proyecto)
+# Directorio local donde se almacenan las imágenes
 image_directory = "images/"
 
 categoria = st.selectbox("Categoría", ["Comida", "Alojamiento", "Transporte",
@@ -39,10 +38,12 @@ imagen = io.imread(imagen_categoria)
 # Mostrar la imagen redimensionada
 st.image(imagen, caption=categoria, width=150)
 
+# Recibir inputs
 monto = st.number_input("Monto", value=0.0)
 fecha = st.date_input("Fecha")
 fecha = fecha.strftime('%d/%m')
 
+# Agregar gastos
 if st.button("Agregar Gasto"):
     new_row = {'Categoria': categoria, 'Monto': monto, 'Fecha': fecha}
     st.session_state.df = pd.concat([st.session_state.df,
@@ -73,7 +74,6 @@ if not st.session_state.df.empty:
     max_gasto = gasto_por_categoria.max()
     categoria_min_gasto = gasto_por_categoria.idxmin()
     min_gasto = gasto_por_categoria.min()
-
     st.write(f"Categoría en la que se gastó más dinero: {categoria_max_gasto}"
              f" (${max_gasto:.2f})")
     st.write(f"Categoría en la que se gastó menos dinero: "
